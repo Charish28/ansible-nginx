@@ -1,0 +1,31 @@
+- name: Install Nginx and set custom index.html
+  hosts: webservers
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      when: ansible_facts.os_family == "Debian"
+
+    - name: Install Nginx (Debian/Ubuntu)
+      apt:
+        name: nginx
+        state: present
+      when: ansible_facts.os_family == "Debian"
+
+    - name: Ensure Nginx is running and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Create custom index.html
+      copy:
+        dest: /var/www/html/index.html
+        content: "Hi Jenkins Ansible"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
